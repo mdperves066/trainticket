@@ -8,7 +8,6 @@ export default function SearchTrainRouteGraph({ path }: any) {
         <div className="p-4">
             {path.map((route: any, index: any) => (
                 <div key={index} className="flex items-center mb-4 md:mb-8 p-1 md:p-4 overflow-x-auto">
-
                     <div className='flex flex-col justify-center items-center md:mx-6'>
                         <FaMapMarkerAlt className="text-red-500 w-5 md:w-7 h-5 md:h-7" />
                         <p className="text-slate-500 md:ml-2 text-xs md:text-lg font-semibold">{route.source_name}</p>

@@ -1,5 +1,4 @@
 "use client"
-
 import { useState } from "react";
 import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
@@ -11,7 +10,7 @@ export default function SignUp()
 
     const {toast} = useToast();
 
-    const ENDPOINT = process.env.NEXT_PUBLIC_ENDPOINT
+    const ENDPOINT = process.env.NEXT_PUBLIC_ENDPOINT;
 
     const router = useRouter();
 

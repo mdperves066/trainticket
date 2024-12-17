@@ -5,7 +5,6 @@ export default function GenerateTicketPDF(user: any, train_name: string, from: a
     const generatePDF = async () => {
         const doc = new jsPDF();
         
-
         // Add green border around the entire page
         const margin = 8;
         doc.setLineWidth(1.5);
