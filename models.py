@@ -3,7 +3,7 @@ from database import Base
 from sqlalchemy import Column, Integer, LargeBinary, String, ForeignKey
 from sqlalchemy.sql.sqltypes import Time, Date
 from sqlalchemy.orm import relationship
-from sqlalchemy.orm import relationship
+
 
 
 class Seat(Base):
