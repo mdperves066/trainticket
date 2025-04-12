@@ -76,7 +76,7 @@ export default function ResetPassword() {
 
     return (
         <div className="w-full h-screen flex flex-col justify-center items-center bg-white"> 
-            <div className="w-[90%] md:w-[60%] h-[60%] bf-[var(--p-bg)] rounded-lg shadow-lg flex flex-col justify-center items-center">
+            <div className="w-[90%] md:w-[60%] h-[60%] bg-[var(--p-bg)] rounded-lg shadow-lg flex flex-col justify-center items-center">
                 <div className="w-full flex justify-start items-center">
                     <MdOutlineLockReset className="w-6 h-6 text-[var(--sec-bg)] ml-3 mb-2 mr-3"/>
                     <h1 className="mb-2 text-2xl text-[var(--sec-bg)]">Reset Password</h1>
