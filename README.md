@@ -1,6 +1,6 @@
-# BD Train Online Booking System
+# BD Train Online Booking (Practice Project)
 
-A high-performance, full-stack application for managing and booking train tickets in Bangladesh. This platform provides a seamless experience for users to search for journeys, select seats, and manage bookings, while providing admins with powerful tools for railway management.
+A simple train ticket booking application built as a practice project while learning Next.js. It features a Next.js frontend and a FastAPI backend to handle basic railway reservation logic.
 
 ## ✨ Features
 
