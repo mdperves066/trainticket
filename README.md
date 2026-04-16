@@ -1,79 +1,48 @@
 # BD Train Online Booking System
 
-A comprehensive train ticket booking platform featuring a Next.js frontend and a FastAPI backend.
+A high-performance, full-stack application for managing and booking train tickets in Bangladesh. This platform provides a seamless experience for users to search for journeys, select seats, and manage bookings, while providing admins with powerful tools for railway management.
 
-## 🏗 Project Structure
+## ✨ Features
 
-This is a monorepo containing both the frontend and backend services:
+### Client Features
+- **Smart Search**: Find trains based on departure/arrival locations and preferred dates.
+- **Seat Selection**: Interactive seat selection with real-time availability.
+- **Dynamic Routing**: Sophisticated pathfinding to identify best routes between stations.
+- **Ticket Generation**: Automatic generation of booking logs and digital tickets.
+- **User Dashboard**: Manage profiles, view booking history, and cancel reservations.
 
-- **[frontend/](./frontend)**: Next.js application (React, TypeScript, Tailwind CSS).
-- **[backend/](./backend)**: FastAPI application (Python, SQLAlchemy, PostgreSQL).
+### Security & Performance
+- **Secure Auth**: JWT-based authentication with password hashing.
+- **Fast Caching**: Redis-backed caching for route and station data.
+- **CORS Handling**: Ready for cross-origin frontend-backend interaction.
+- **Data Integrity**: Enforced via SQLAlchemy models and PostgreSQL.
+
+## 🏗 Project Architecture
+
+This is a monorepo structured as follows:
+
+| Component | Path | Description |
+| :--- | :--- | :--- |
+| **Frontend** | [`/frontend`](./frontend) | Next.js, Tailwind CSS, TypeScript |
+| **Backend** | [`/backend`](./backend) | Python, FastAPI, PostgreSQL, Redis |
 
 ---
 
 ## 🚀 Getting Started
 
-### Prerequisites
+To get the project running locally, please follow the setup guides in the respective directories:
 
-- **Node.js** (v18+)
-- **Python** (v3.9+)
-- **PostgreSQL** (Running locally with a database named `railway`)
-
-### Backend Setup
-
-1. Navigate to the backend directory:
-   ```bash
-   cd backend
-   ```
-2. Create and activate a virtual environment:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-3. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-4. Start the server:
-   ```bash
-   uvicorn main:app --reload
-   ```
-   The backend will be available at `http://localhost:8000`.
-
-### Frontend Setup
-
-1. Navigate to the frontend directory:
-   ```bash
-   cd frontend
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Start the development server:
-   ```bash
-   npm run dev
-   ```
-   The frontend will be available at `http://localhost:3000`.
+1. **Backend Setup**: Follow the instructions in [backend/README.md](./backend/README.md)
+2. **Frontend Setup**: Follow the instructions in [frontend/README.md](./frontend/README.md)
 
 ---
 
 ## 🛠 Tech Stack
 
-- **Frontend**: [Next.js](https://nextjs.org/), [Tailwind CSS](https://tailwindcss.com/), [TypeScript](https://www.typescriptlang.org/)
+- **Frontend**: [Next.js](https://nextjs.org/), [Tailwind CSS](https://tailwindcss.com/)
 - **Backend**: [FastAPI](https://fastapi.tiangolo.com/), [SQLAlchemy](https://www.sqlalchemy.org/)
+- **Cache**: [Redis](https://redis.io/)
 - **Database**: [PostgreSQL](https://www.postgresql.org/)
 
-## 📝 Features
-
-- User Authentication (Login/Sign-up)
-- Train Search and Route Selection
-- Seat Booking and Ticket Generation (PDF)
-- Profile Management
-- Admin functionality for managing trains and paths
-
----
-
 ## 📄 License
-
 [MIT](LICENSE)
