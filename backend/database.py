@@ -1,8 +1,12 @@
+import os
+from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-sqlAlchemyDatabaseUrl = "postgresql://araf:password@localhost:5432/railway"
+load_dotenv()
+
+sqlAlchemyDatabaseUrl = os.getenv("DATABASE_URL")
 
 
 engine = create_engine(sqlAlchemyDatabaseUrl)

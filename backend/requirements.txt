@@ -7,3 +7,4 @@ passlib[bcrypt]
 pydantic
 redis
 python-multipart
+python-dotenv
