@@ -30,9 +30,9 @@ This is a monorepo containing both the frontend and backend services:
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
-3. Install dependencies (standard FastAPI stack):
+3. Install dependencies:
    ```bash
-   pip install fastapi uvicorn sqlalchemy psycopg2-binary
+   pip install -r requirements.txt
    ```
 4. Start the server:
    ```bash
