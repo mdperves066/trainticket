@@ -1,4 +1,4 @@
-# BD Train Online Booking (Practice Project)
+# BD Train Online Booking
 
 A simple train ticket booking application built as a practice project while learning Next.js. It features a Next.js frontend and a FastAPI backend to handle basic railway reservation logic.
 
