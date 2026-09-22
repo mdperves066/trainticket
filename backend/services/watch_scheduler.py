@@ -10,9 +10,11 @@ import models
 from adapters.base import RailwayAdapter, SearchResult, SessionStatus
 from adapters.mock import MockRailwayAdapter
 from adapters.official import OfficialRailwayAdapter
+from utils.timezone import now_utc, now_utc_iso, to_dhaka_str
 from .change_detector import AvailabilityChangeDetector
 from .telegram_bot import TelegramNotifier
 from .sse_manager import sse_hub
+
 
 
 class WatchScheduler:
@@ -170,12 +172,13 @@ class WatchScheduler:
                     watch.next_check_at = datetime.utcnow() + timedelta(seconds=backoff_sec)
                     db.commit()
 
+                    next_iso = watch.next_check_at.isoformat() + "Z"
                     await sse_hub.broadcast("watch_error", {
                         "watch_id": watch_id,
                         "status": watch.current_status,
                         "error": watch.last_error,
                         "backoff_seconds": backoff_sec,
-                        "next_check_at": watch.next_check_at.isoformat(),
+                        "next_check_at": next_iso,
                     })
 
                     await asyncio.sleep(backoff_sec)
@@ -198,12 +201,16 @@ class WatchScheduler:
                 watch.next_check_at = datetime.utcnow() + timedelta(seconds=sleep_duration)
                 db.commit()
 
+                last_iso = (watch.last_check_at.isoformat() + "Z") if watch.last_check_at else now_utc_iso()
+                next_iso = (watch.next_check_at.isoformat() + "Z") if watch.next_check_at else now_utc_iso()
+
                 await sse_hub.broadcast("watch_countdown", {
                     "watch_id": watch_id,
-                    "last_check_at": watch.last_check_at.isoformat(),
-                    "next_check_at": watch.next_check_at.isoformat(),
+                    "last_check_at": last_iso,
+                    "next_check_at": next_iso,
                     "sleep_duration": round(sleep_duration, 1),
                 })
+
 
                 await asyncio.sleep(sleep_duration)
 
@@ -289,6 +296,7 @@ class WatchScheduler:
                     alert.notified_telegram = 1
 
                 # Broadcast live alert to UI
+                alert_iso = alert.detected_at.isoformat() + "Z"
                 await sse_hub.broadcast("seat_alert", {
                     "alert_id": alert.id,
                     "watch_id": watch_id,
@@ -300,7 +308,7 @@ class WatchScheduler:
                     "to_station": watch.to_station,
                     "journey_date": watch.journey_date,
                     "event_type": "SEAT_AVAILABLE",
-                    "detected_at": alert.detected_at.isoformat(),
+                    "detected_at": alert_iso,
                     "message": tr.message,
                 })
 
@@ -337,9 +345,10 @@ class WatchScheduler:
                     "watch_id": watch_id,
                     "train": item.train_name,
                     "class_name": item.class_name,
-                    "detected_at": datetime.utcnow().isoformat(),
+                    "detected_at": now_utc_iso(),
                     "message": tr.message,
                 })
+
 
         # Update watch job snapshot
         watch.current_availability = json.dumps(current_avail_map)

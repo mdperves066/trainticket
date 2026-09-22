@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from database import engine
 import models
 from router import route, train, path, booking, auth, user, place
-from router import watch, alerts, session, diagnostics
+from router import watch, alerts, session, diagnostics, stations_trains
 from services.watch_scheduler import scheduler
 
 
@@ -52,6 +52,7 @@ def home():
 
 # Monitoring & Real-time Routers (Primary)
 app.include_router(diagnostics.router)
+app.include_router(stations_trains.router)
 app.include_router(watch.router)
 app.include_router(alerts.router)
 app.include_router(session.router)

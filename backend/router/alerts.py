@@ -6,6 +6,7 @@ from database import get_db
 import models
 import schemas
 from services.sse_manager import sse_hub
+from utils.timezone import now_utc_iso
 
 router = APIRouter(prefix="/api/alerts", tags=["Alerts & Siren"])
 
@@ -30,9 +31,10 @@ async def acknowledge_alert(id: int, db: Session = Depends(get_db)):
     alert.acknowledged_at = datetime.utcnow()
     db.commit()
 
+    ack_iso = alert.acknowledged_at.isoformat() + "Z" if alert.acknowledged_at else now_utc_iso()
     await sse_hub.broadcast("alert_acknowledged", {
         "alert_id": id,
-        "acknowledged_at": alert.acknowledged_at.isoformat(),
+        "acknowledged_at": ack_iso,
     })
 
     return {"message": "Alert acknowledged.", "alert_id": id}
@@ -42,7 +44,7 @@ async def acknowledge_alert(id: int, db: Session = Depends(get_db)):
 async def stop_alarm():
     """Global action to stop audio siren across all UI dashboards."""
     await sse_hub.broadcast("stop_alarm", {
-        "stopped_at": datetime.utcnow().isoformat(),
+        "stopped_at": now_utc_iso(),
         "state": "STOPPED",
     })
     return {"message": "Alarm siren stopped.", "state": "STOPPED"}
@@ -62,9 +64,10 @@ async def test_alert():
         "to_station": "SYLHET",
         "journey_date": "30-Sep-2026",
         "event_type": "SEAT_AVAILABLE",
-        "detected_at": datetime.utcnow().isoformat(),
+        "detected_at": now_utc_iso(),
         "message": "TEST ALERT: 2 Snigdha seats detected on Parabat Express.",
         "is_test": True,
     }
     await sse_hub.broadcast("seat_alert", test_data)
     return {"message": "Test alert emitted successfully.", "payload": test_data}
+

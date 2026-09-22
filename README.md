@@ -40,8 +40,21 @@ USER SPECIFIES CRITERIA → MONITORS OFFICIAL SITE → DETECTS AVAILABILITY (0 �
    - **Browser Notifications**: Native HTML5 desktop notifications.
    - **Flashing Browser Tab**: Flashing title alerts (`🚨 2 SEATS! Parabat Express (Snigdha)`).
    - **Optional Telegram Bot**: Instant Markdown notification with a direct booking link.
-6. **One-Click Official Booking**:
-   - Provides an **[OPEN OFFICIAL BOOKING PAGE]** button.
+6. **Dynamic Route & Date Train Discovery**:
+   - The train list is **never hardcoded statically** across all routes.
+   - Selecting **Dhaka → Sylhet** dynamically presents *Parabat Express*, *Kalni Express*, *Upaban Express*, and *Jayantik Express*.
+   - Selecting **Dhaka → Chittagong** dynamically presents *Subarna Express*, *Sonar Bangla Express*, *Mohanagar Provati*, etc.
+   - Weekly off-days (e.g., Subarna Express off on Monday, Kalni Express off on Friday) are accurately flagged as `NOT_SCHEDULED ON SELECTED DATE`.
+7. **Canonical Station Resolution (English + Bengali + Aliases)**:
+   - Full Unicode NFKC normalization.
+   - Type in English (`Dhaka`, `Kamalapur`, `Chittagong`) or Bengali (`ঢাকা`, `চট্টগ্রাম`, `সিলেট`).
+   - Autocompletes and resolves to the official railway canonical station name before querying.
+8. **Guaranteed Bangladesh Standard Time (Asia/Dhaka, BST, UTC+6)**:
+   - All backend timestamps are strictly emitted in ISO-8601 with explicit `Z` UTC indicators.
+   - All frontend cards, tables, alerts, and event timelines format display in **Asia/Dhaka (BST)**, eliminating any 6-hour drift.
+   - Includes real-time `● LIVE (BST)` and `⚠ STALE DATA` indicators.
+9. **One-Click Official Booking**:
+   - Provides an **[OPEN OFFICIAL BOOKING]** button.
    - The user completes the final ticket reservation, OTP, CAPTCHA, and payment securely on the official portal.
 
 ---

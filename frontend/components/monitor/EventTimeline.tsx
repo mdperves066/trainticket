@@ -2,6 +2,7 @@
 
 import React from "react";
 import { History, BellRing, CheckCircle, XCircle, Clock, ArrowRight } from "lucide-react";
+import { formatDhakaTime } from "@/lib/formatTime";
 
 export interface TimelineEvent {
   id?: number;
@@ -76,9 +77,9 @@ export const EventTimeline: React.FC<EventTimelineProps> = ({ events, onClearHis
                     <span className="font-bold text-white">
                       {ev.train} — <span className="text-zinc-300">{ev.class_name}</span>
                     </span>
-                    <span className="flex items-center space-x-1 text-zinc-500 font-mono">
-                      <Clock className="h-3 w-3" />
-                      <span>{new Date(ev.detected_at).toLocaleTimeString()}</span>
+                    <span className="flex items-center space-x-1 text-zinc-400 font-mono text-[11px]">
+                      <Clock className="h-3 w-3 text-zinc-500" />
+                      <span>{formatDhakaTime(ev.detected_at)} BST</span>
                     </span>
                   </div>
 

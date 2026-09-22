@@ -2,6 +2,7 @@
 
 import React from "react";
 import { BellRing, ExternalLink, CheckCircle2, VolumeX, AlertOctagon } from "lucide-react";
+import { formatDhakaTime } from "@/lib/formatTime";
 
 export interface ActiveAlert {
   alert_id?: number;
@@ -97,7 +98,7 @@ export const AlertCenter: React.FC<AlertCenterProps> = ({
                   Transition: <b className="text-zinc-200">{al.previous_availability} → {al.current_availability} seats</b>
                 </span>
                 <span>
-                  Detected: <b className="text-emerald-400">{new Date(al.detected_at).toLocaleTimeString()}</b>
+                  Detected: <b className="text-emerald-400">{formatDhakaTime(al.detected_at)}</b> (BST)
                 </span>
               </div>
             </div>

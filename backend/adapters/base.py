@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from typing import List, Optional, Dict, Any
 from dataclasses import dataclass, field
 from datetime import datetime
+from utils.timezone import now_utc_iso
 
 
 @dataclass
@@ -27,7 +28,7 @@ class SearchResult:
     status: str = "OK"  # OK, PARSE_ERROR, LOGIN_REQUIRED, CAPTCHA_REQUIRED, NETWORK_ERROR, RATE_LIMITED
     error: Optional[str] = None
     source: str = "OFFICIAL"  # OFFICIAL or MOCK
-    timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
+    timestamp: str = field(default_factory=now_utc_iso)
 
 
 @dataclass
@@ -36,7 +37,8 @@ class SessionStatus:
     status: str = "OFFLINE"  # ACTIVE, LOGIN_REQUIRED, CAPTCHA_REQUIRED, EXPIRED, OFFLINE
     user_name: Optional[str] = None
     message: str = "Worker offline"
-    last_checked: str = field(default_factory=lambda: datetime.utcnow().isoformat())
+    last_checked: str = field(default_factory=now_utc_iso)
+
 
 
 class RailwayAdapter(ABC):

@@ -12,3 +12,4 @@ httpx
 playwright
 pytest
 pytest-asyncio
+tzdata

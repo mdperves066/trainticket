@@ -26,8 +26,8 @@ class ResilientCache:
                 host=self.host,
                 port=self.port,
                 db=0,
-                socket_connect_timeout=1,
-                socket_timeout=1,
+                socket_connect_timeout=0.2,
+                socket_timeout=0.2,
                 decode_responses=True
             )
             client.ping()

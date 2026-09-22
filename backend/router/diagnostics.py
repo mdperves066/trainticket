@@ -2,7 +2,9 @@ import asyncio
 import json
 import httpx
 from datetime import datetime
+from utils.timezone import now_utc_iso
 from fastapi import APIRouter, Depends, Request, Response
+
 from fastapi.responses import StreamingResponse
 from services.watch_scheduler import scheduler
 from services.sse_manager import sse_hub
@@ -53,7 +55,7 @@ async def get_diagnostics():
         "active_watch_tasks": len(scheduler._active_tasks),
         "telegram_configured": scheduler.telegram.is_configured,
         "last_parse_timestamp": getattr(scheduler.official_adapter, "_last_parse_timestamp", None),
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": now_utc_iso(),
     }
 
 
@@ -77,10 +79,11 @@ async def event_stream(request: Request):
                 "event": "connected",
                 "data": {
                     "mode": scheduler.mode,
-                    "timestamp": datetime.utcnow().isoformat(),
+                    "timestamp": now_utc_iso(),
                 },
             }
             yield f"event: connected\ndata: {json.dumps(init_msg)}\n\n"
+
 
             while True:
                 if await request.is_disconnected():

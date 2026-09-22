@@ -425,6 +425,7 @@ export default function Home() {
           onSearchOnce={handleSearchOnce}
           onStartMonitoring={handleStartMonitoring}
           loading={loading}
+          apiUrl={API_BASE}
         />
 
         {/* Live Availability Table */}

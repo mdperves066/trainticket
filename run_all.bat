@@ -34,6 +34,7 @@ if not exist venv (
 call venv\Scripts\activate.bat
 echo Installing/verifying backend dependencies...
 pip install -r requirements.txt --quiet
+python -m playwright install chromium
 
 :: 4. Setup Frontend Environment
 echo.

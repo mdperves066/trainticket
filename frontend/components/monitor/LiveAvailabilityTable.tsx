@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Train, ExternalLink, RefreshCw, CheckCircle2, XCircle, AlertCircle, Clock } from "lucide-react";
+import { formatDhakaTime, isTimestampStale } from "@/lib/formatTime";
 
 export interface LiveItem {
   train_name: string;
@@ -31,6 +32,8 @@ export const LiveAvailabilityTable: React.FC<LiveAvailabilityTableProps> = ({
   isMonitoring,
   onOpenBooking,
 }) => {
+  const isStale = isTimestampStale(lastChecked, 45);
+
   return (
     <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-5 shadow-xl backdrop-blur-sm sm:p-6">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-zinc-800 pb-3">
@@ -48,6 +51,18 @@ export const LiveAvailabilityTable: React.FC<LiveAvailabilityTableProps> = ({
           >
             {source === "OFFICIAL" ? "OFFICIAL PORTAL" : "MOCK SOURCE"}
           </span>
+
+          {lastChecked && (
+            <span
+              className={`rounded-full px-2 py-0.5 text-[11px] font-bold tracking-wide ${
+                isStale
+                  ? "bg-amber-500/20 text-amber-300 border border-amber-500/40"
+                  : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+              }`}
+            >
+              {isStale ? "⚠ STALE DATA" : "● LIVE (BST)"}
+            </span>
+          )}
         </div>
 
         {/* Polling & Countdown Status */}
@@ -66,7 +81,7 @@ export const LiveAvailabilityTable: React.FC<LiveAvailabilityTableProps> = ({
           {lastChecked && (
             <div className="flex items-center space-x-1">
               <Clock className="h-3.5 w-3.5 text-zinc-500" />
-              <span>Last checked: <b className="text-zinc-300">{new Date(lastChecked).toLocaleTimeString()}</b></span>
+              <span>Last checked: <b className="text-zinc-200">{formatDhakaTime(lastChecked)}</b> (BST)</span>
             </div>
           )}
         </div>

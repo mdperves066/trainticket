@@ -4,7 +4,9 @@ import re
 from typing import List, Optional, Dict, Any
 from datetime import datetime
 from pathlib import Path
+from utils.timezone import now_utc_iso
 from .base import RailwayAdapter, SearchResult, ParsedSeatItem, SessionStatus
+
 
 try:
     from playwright.async_api import async_playwright, BrowserContext, Page, Playwright
@@ -283,7 +285,8 @@ class OfficialRailwayAdapter(RailwayAdapter):
                     selected_classes=selected_classes,
                 )
 
-                self._last_parse_timestamp = datetime.utcnow().isoformat()
+                self._last_parse_timestamp = now_utc_iso()
+
 
                 if not items:
                     # Check if "No trains available" is on page

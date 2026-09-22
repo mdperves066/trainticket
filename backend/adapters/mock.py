@@ -1,6 +1,8 @@
 import asyncio
 from typing import List, Optional, Dict
 from datetime import datetime
+from utils.timezone import now_utc_iso
+from services.train_discovery import discover_trains_for_route
 from .base import RailwayAdapter, SearchResult, ParsedSeatItem, SessionStatus
 
 
@@ -26,7 +28,7 @@ class MockRailwayAdapter(RailwayAdapter):
             status="ACTIVE" if self._session_active else "LOGIN_REQUIRED",
             user_name="Demo Official User",
             message="Mock persistent session active",
-            last_checked=datetime.utcnow().isoformat(),
+            last_checked=now_utc_iso(),
         )
 
     def set_session_status(self, active: bool) -> None:
@@ -53,27 +55,19 @@ class MockRailwayAdapter(RailwayAdapter):
         step = self._query_counter.get(query_key, 0)
         self._query_counter[query_key] = step + 1
 
-        # Determine train list based on route
-        from_upper = from_station.upper()
-        to_upper = to_station.upper()
-
-        if "SYLHET" in from_upper or "SYLHET" in to_upper:
-            train_names = ["Parabat Express", "Kalni Express", "Upaban Express"]
-        elif "CHITTAGONG" in from_upper or "CHITTAGONG" in to_upper or "CHATTO" in from_upper or "CHATTO" in to_upper:
-            train_names = ["Subarna Express", "Sonar Bangla Express", "Mohanagar Provati"]
-        elif "COX" in from_upper or "COX" in to_upper:
-            train_names = ["Cox's Bazar Express", "Tourist Express"]
-        elif "RAJSHAHI" in from_upper or "RAJSHAHI" in to_upper:
-            train_names = ["Silk City Express", "Padma Express", "Dhumketu Express"]
-        else:
-            train_names = ["Jamuna Express", "Ekota Express", "Sundarban Express"]
+        # Dynamically discover authentic trains for this route & date
+        discovery = discover_trains_for_route(from_station, to_station, journey_date, mode="MOCK")
+        discovered_train_names = [t.train_name for t in discovery.trains]
 
         # Filter by selected_trains if not "ALL"
         if selected_trains and "ALL" not in [t.upper() for t in selected_trains]:
             selected_trains_upper = [t.upper() for t in selected_trains]
-            train_names = [t for t in train_names if any(st in t.upper() for st in selected_trains_upper)]
+            train_names = [t for t in discovered_train_names if any(st in t.upper() for st in selected_trains_upper)]
             if not train_names:
                 train_names = selected_trains  # fallback to requested names
+        else:
+            train_names = discovered_train_names
+
 
         standard_classes = ["Snigdha", "Shovon Chair", "AC_B", "AC_S"]
         if selected_classes and "ALL" not in [c.upper() for c in selected_classes]:
@@ -130,8 +124,9 @@ class MockRailwayAdapter(RailwayAdapter):
             items=items,
             status="OK",
             source="MOCK",
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=now_utc_iso(),
         )
+
 
     async def open_login_window(self) -> bool:
         # In mock mode, simply toggle session active

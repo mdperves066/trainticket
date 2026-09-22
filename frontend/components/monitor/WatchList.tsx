@@ -14,6 +14,7 @@ import {
   Train, 
   AlertCircle 
 } from "lucide-react";
+import { formatDhakaTime } from "@/lib/formatTime";
 
 export interface WatchJob {
   id: string;
@@ -122,7 +123,7 @@ export const WatchList: React.FC<WatchListProps> = ({
                     {w.last_check_at && (
                       <div className="flex items-center space-x-1 text-[11px] text-zinc-500 pt-1">
                         <Clock className="h-3 w-3" />
-                        <span>Last check: {new Date(w.last_check_at).toLocaleTimeString()}</span>
+                        <span>Last check: {formatDhakaTime(w.last_check_at)} BST</span>
                       </div>
                     )}
 

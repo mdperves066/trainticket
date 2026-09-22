@@ -2,6 +2,7 @@ import asyncio
 import json
 from typing import Set, Dict, Any
 from datetime import datetime
+from utils.timezone import now_utc_iso
 
 
 class SSEManager:
@@ -28,8 +29,9 @@ class SSEManager:
         payload = {
             "event": event_name,
             "data": data,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": now_utc_iso(),
         }
+
         raw_msg = f"event: {event_name}\ndata: {json.dumps(payload)}\n\n"
 
         async with self._lock:
