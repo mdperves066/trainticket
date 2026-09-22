@@ -1,47 +1,49 @@
-# Backend - BD Train Online Booking
+# Backend - Bangladesh Railway Online Booking
 
-This is the Python/FastAPI backend API for the Railway Reservation System.
+High-performance FastAPI REST API for the Bangladesh Railway Reservation System.
 
-## 🚀 Getting Started
+## 🚀 Features
+- **Zero-Configuration SQLite Fallback**: Runs out of the box using local `railway.db` with no PostgreSQL installation required.
+- **PostgreSQL Production Ready**: Easily switch to PostgreSQL by defining `DATABASE_URL` in `.env`.
+- **Resilient Caching**: Redis caching with seamless in-memory fallback if Redis is offline.
+- **JWT & Password Security**: Industry-standard bcrypt password hashing and token validation.
+- **Self-Seeding Data**: `seed.py` populates real stations, trains, and routes across Bangladesh.
+- **Reservation & Cancellation**: Full database tracking of user tickets, available seats, and cancellation handling.
 
-### Prerequisites
-- **Python**: v3.9 or later
-- **PostgreSQL**: Local instance running
-- **Redis**: Local instance running (optional but recommended for caching)
+## 📦 Setup & Run
 
-### Installation
+### 1. Virtual Environment & Dependencies
+```bash
+python -m venv venv
+.\venv\Scripts\activate
+pip install -r requirements.txt
+```
 
-1. **Virtual Environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+### 2. Configuration
+The `.env` file defaults to SQLite for zero friction:
+```env
+DATABASE_URL=sqlite:///./railway.db
+REDIS_HOST=localhost
+REDIS_PORT=6379
+SECRET_KEY=bd_railway_secret_key_super_secure_jwt_token_2026
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=1440
+```
 
-2. **Install Dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
+### 3. Seed Sample Railway Data
+```bash
+python seed.py
+```
 
-3. **Setup Environment**:
-   Create a `.env` file based on `.env.example`:
-   ```bash
-   cp .env.example .env
-   ```
+### 4. Run API Server
+```bash
+uvicorn main:app --reload --port 8000
+```
+- API Base URL: `http://localhost:8000`
+- Swagger Interactive Docs: `http://localhost:8000/docs`
+- ReDoc Docs: `http://localhost:8000/redoc`
 
-4. **Database Setup**:
-   Ensure you have a PostgreSQL database named `railway`. The tables will be auto-generated on the first run.
-
-5. **Run API Server**:
-   ```bash
-   uvicorn main:app --reload
-   ```
-   The API will be available at [http://localhost:8000](http://localhost:8000).
-
----
-
-## 🛠 Stack
-- **Framework**: FastAPI
-- **ORM**: SQLAlchemy
-- **Database**: PostgreSQL
-- **Cache**: Redis
-- **Authentication**: JWT (Jose)
+### 5. Automated Tests
+```bash
+python test_api.py
+```

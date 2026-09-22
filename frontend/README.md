@@ -1,40 +1,30 @@
-# Frontend - BD Train Online Booking
+# Frontend - Bangladesh Railway Online Booking
 
-This is the Next.js frontend for the Railway Reservation System.
+Modern, responsive Next.js 14 App Router web client for Bangladesh Railway online ticket reservations.
 
-## 🚀 Getting Started
+## 🚀 Features
+- **Train Search**: Station auto-complete and date selector.
+- **Seat Selection**: Interactive seat classes (Shovon Chair, Snigdha, AC Berth, etc.) with real-time seat inventory.
+- **Client-Side PDF Generation**: Digital Bangladesh Railway tickets with passenger info and itinerary details.
+- **User Dashboard**: Profile management + **"My Bookings"** tab to view ticket history, re-download PDFs, and cancel active reservations.
+- **Secure Authentication**: Protected routes with token persistence.
 
-### Prerequisites
-- **Node.js**: v18 or later
-- **npm** or **yarn**
+## 📦 Setup & Run
 
-### Installation
+### 1. Install Dependencies
+```bash
+npm install
+```
 
-1. **Install dependencies**:
-   ```bash
-   npm install
-   # or
-   yarn install
-   ```
+### 2. Environment Variables
+Create `.env` (or use the pre-configured default):
+```env
+NEXT_PUBLIC_ENDPOINT=http://localhost:8000
+NEXT_PUBLIC_SERVICE_NAME=BD Railways Online Ticket Booking
+```
 
-2. **Setup Environment**:
-   Create a `.env` file based on `.env.example`:
-   ```bash
-   cp .env.example .env
-   ```
-
-3. **Run Development Server**:
-   ```bash
-   npm run dev
-   # or
-   yarn dev
-   ```
-   The application will be available at [http://localhost:3000](http://localhost:3000).
-
----
-
-## 🛠 Stack
-- **Framework**: Next.js (App Router)
-- **Styling**: Tailwind CSS
-- **Language**: TypeScript
-- **State/Data**: Fetch API, Local Storage
+### 3. Run Development Server
+```bash
+npm run dev
+```
+Open [http://localhost:3000](http://localhost:3000) in your browser.

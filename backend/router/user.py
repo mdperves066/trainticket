@@ -1,9 +1,11 @@
 from typing import Annotated
 from fastapi.security import OAuth2PasswordRequestForm
-import models,schemas,oauth2
+import models, schemas, oauth2
 import database as db
-from fastapi import Depends, HTTPException, APIRouter,status
+from fastapi import Depends, HTTPException, APIRouter, status
 from sqlalchemy.orm import Session
+
+router = APIRouter(tags=["user"], prefix="/user")
 
 router = APIRouter(tags=["user"], prefix="/user")
 

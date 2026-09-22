@@ -1,7 +1,7 @@
-from typing import List
+from typing import List, Optional
 from pydantic import BaseModel
 from datetime import date, datetime, time
-import base64
+
 
 class SeatSchemaOut(BaseModel):
     id: int
@@ -9,8 +9,7 @@ class SeatSchemaOut(BaseModel):
     price: int
     capacity: int
 
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
 
 
 class TrainSchemaOut(BaseModel):
@@ -18,9 +17,7 @@ class TrainSchemaOut(BaseModel):
     name: str
     seats: List[SeatSchemaOut]
 
-    class Config:
-        orm_mode = True
-
+    model_config = {"from_attributes": True}
 
 
 class SeatSchemaIn(BaseModel):
@@ -28,29 +25,26 @@ class SeatSchemaIn(BaseModel):
     price: int
     capacity: int
 
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
 
 
 class TrainSchemaIn(BaseModel):
     name: str
 
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
 
 
 class PlaceSchemaIn(BaseModel):
     name: str
 
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
+
 
 class PlaceSchemaOut(BaseModel):
     id: int
     name: str
 
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
 
 
 class RouteSchemaIn(BaseModel):
@@ -60,6 +54,7 @@ class RouteSchemaIn(BaseModel):
     leavetime: time
     reachtime: time
     train_id: int
+    dflag: int = 0
 
 
 class RouteSchemaOut(BaseModel):
@@ -71,8 +66,7 @@ class RouteSchemaOut(BaseModel):
     reachtime: time
     train_name: str
 
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
 
 
 class PathSh1(BaseModel):
@@ -80,36 +74,35 @@ class PathSh1(BaseModel):
     destination_name: str
     distance: int
     leavetime: time
-    reachtime:time
+    reachtime: time
     duration: int
 
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
+
 
 class PathSh2(BaseModel):
-    source_name:str
-    destination_name:str
-    distance:int
+    source_name: str
+    destination_name: str
+    distance: int
 
-    class Config:
-        orm_mode=True
+    model_config = {"from_attributes": True}
+
 
 class TrainRouteSchema1(BaseModel):
     train_id: int
     train_name: str
-    dflag:int
+    dflag: int
     path: List[PathSh1]
 
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
+
 
 class TrainRouteSchema2(BaseModel):
     train_id: int
     train_name: str
     path: List[PathSh2]
 
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
 
 
 class AvailSeat(BaseModel):
@@ -118,67 +111,100 @@ class AvailSeat(BaseModel):
     price: int
     available: int
 
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
 
 
 class UserSignUp(BaseModel):
     name: str
     email: str
-    role:str
-    img_data: bytes
+    role: str = "USER"
+    img_data: Optional[str] = None
     password: str
-    nid:str
-    location:str
-    phone:str
-    
-    class Config:
-        orm_mode = True
+    nid: str
+    location: str
+    phone: str
+
+    model_config = {"from_attributes": True}
+
 
 class UserSignIn(BaseModel):
     email: str
     password: str
 
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
 
 
 class UserSchema(BaseModel):
     id: int
     name: str
-    password: str
     email: str
     role: str
-    nid:str
-    location:str 
-    phone:str
-    img_data: bytes
+    nid: str
+    location: str
+    phone: str
+    img_data: Optional[str] = None
 
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
+
 
 class PasswordCodeSchema(BaseModel):
     email: str
     code: str
 
-    class Config:
-        orm_mode = True
-        
+    model_config = {"from_attributes": True}
+
+
 class ResetPasswordSchema(BaseModel):
     email: str
     password: str
 
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
 
 
 class TrainPlaceSchemaOut(BaseModel):
-    id:int 
-    name:str
-    incoming_arrival:time
-    outgoing_arrival:time
-    incoming_departure:time
-    outgoing_departure:time
+    id: int
+    name: str
+    incoming_arrival: time
+    outgoing_arrival: time
+    incoming_departure: time
+    outgoing_departure: time
 
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
+
+
+class TicketCreateSchema(BaseModel):
+    train_id: Optional[int] = None
+    train_name: str
+    seat_id: Optional[int] = None
+    seat_type: str
+    seat_numbers: List[int]
+    from_station: str
+    to_station: str
+    journey_date: date
+    departure_time: str
+    arrival_time: str
+    total_price: int
+    count: int = 1
+    dflag: int = 0
+
+
+class TicketResponseSchema(BaseModel):
+    id: int
+    user_id: int
+    train_id: Optional[int] = None
+    train_name: str
+    seat_id: Optional[int] = None
+    seat_type: str
+    seat_numbers: str
+    from_station: str
+    to_station: str
+    journey_date: date
+    departure_time: str
+    arrival_time: str
+    total_price: int
+    count: int
+    dflag: int
+    status: str
+    created_at: Optional[datetime] = None
+
+    model_config = {"from_attributes": True}

@@ -3,8 +3,9 @@ uvicorn
 sqlalchemy
 psycopg2-binary
 python-jose[cryptography]
-passlib[bcrypt]
+bcrypt
 pydantic
 redis
 python-multipart
 python-dotenv
+httpx

@@ -41,26 +41,51 @@ export default function SearchSeatCard({ seat, date, path,dflag}: any) {
         let reach = FormatTime(path[path.length - 1].reachtime);
 
         let token = localStorage.getItem("token");
-        let  user;
+        let user;
         if (token) {
-        
-            const response = await fetch(`${ENDPOINT}/user/me`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': token,
-                    'Content-Type': 'application/json'
-                }
-            });
+            try {
+                const userResponse = await fetch(`${ENDPOINT}/user/me`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': token,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                user = await userResponse.json();
 
-            const data = await response.json();
-
-            user = data;
+                // Persist ticket to database
+                await fetch(`${ENDPOINT}/booking/ticket`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': token,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        train_id: data.train_id,
+                        train_name: train_name,
+                        seat_id: seat.id,
+                        seat_type: seat_name,
+                        seat_numbers: seat_numbers,
+                        from_station: from,
+                        to_station: to,
+                        journey_date: date,
+                        departure_time: departure,
+                        arrival_time: reach,
+                        total_price: price,
+                        count: count,
+                        dflag: dflag
+                    })
+                });
+            } catch (err) {
+                console.error("Error saving ticket:", err);
+            }
         }
 
+        GenerateTicketPDF(user, train_name, from, to, seat_name, seat_numbers, date, departure, reach, price);
 
-        GenerateTicketPDF(user,train_name,from,to,seat_name,seat_numbers,date,departure,reach,price);
-
-        window.location.reload();
+        setTimeout(() => {
+            window.location.reload();
+        }, 1000);
     }
 
     return (

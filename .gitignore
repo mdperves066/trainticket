@@ -14,11 +14,11 @@
 /frontend/.env*.local
 
 # Backend
-/backend/__pycache__/
+__pycache__/
+*.py[cod]
 /backend/.venv/
 /backend/env/
 /backend/venv/
-/backend/*.pyc
 
 # Generic
 .DS_Store
@@ -28,3 +28,7 @@ yarn-debug.log*
 yarn-error.log*
 
 .env
+*.db
+*.sqlite
+*.sqlite3
+railway.db
