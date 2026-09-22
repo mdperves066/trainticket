@@ -1,7 +1,8 @@
 @echo off
-title BD Railway - Backend API
+title BD Railway Ticket Monitor - Backend
 echo ============================================================
-echo Starting Bangladesh Railway FastAPI Backend Server
+echo Starting BD Railway Ticket Monitor Backend API
+echo Official Source: https://eticket.railway.gov.bd/
 echo ============================================================
 cd /d "%~dp0backend"
 
@@ -13,12 +14,9 @@ if not exist venv (
 echo Activating virtual environment...
 call venv\Scripts\activate.bat
 
-echo Checking dependencies...
+echo Checking backend dependencies...
 pip install -r requirements.txt --quiet
 
-echo Seeding database with initial stations, trains and routes...
-python seed.py
-
-echo Starting Uvicorn Server on http://localhost:8000 ...
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+echo Starting FastAPI / Uvicorn Server on http://localhost:8000 ...
+uvicorn main:app --reload --host 127.0.0.1 --port 8000
 pause

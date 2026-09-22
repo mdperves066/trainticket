@@ -96,3 +96,58 @@ class PasswordCode(Base):
     __tablename__ = "password_codes"
     email = Column(String, primary_key=True, index=True)
     code = Column(String, nullable=False)
+
+
+class WatchJob(Base):
+    __tablename__ = "watch_jobs"
+    id = Column(String, primary_key=True, index=True)  # UUID
+    from_station = Column(String, nullable=False, index=True)
+    to_station = Column(String, nullable=False, index=True)
+    journey_date = Column(String, nullable=False, index=True)
+    passenger_count = Column(Integer, nullable=False, default=1)
+    selected_trains = Column(String, nullable=False, default='["ALL"]')  # JSON encoded list
+    selected_classes = Column(String, nullable=False, default='["ALL"]')  # JSON encoded list
+    monitoring_enabled = Column(Integer, nullable=False, default=0)
+    current_status = Column(String, nullable=False, default="STOPPED")  # STOPPED, RUNNING, WAITING_FOR_LOGIN, MANUAL_ACTION_REQUIRED, BACKOFF, ERROR
+    last_check_at = Column(DateTime, nullable=True)
+    next_check_at = Column(DateTime, nullable=True)
+    current_availability = Column(String, nullable=True)  # JSON encoded current availability snapshot
+    last_error = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    snapshots = relationship("AvailabilitySnapshot", back_populates="watch", cascade="all, delete-orphan")
+    alerts = relationship("AlertEvent", back_populates="watch", cascade="all, delete-orphan")
+
+
+class AvailabilitySnapshot(Base):
+    __tablename__ = "availability_snapshots"
+    id = Column(Integer, primary_key=True, index=True)
+    watch_id = Column(String, ForeignKey("watch_jobs.id"), nullable=False, index=True)
+    train_name = Column(String, nullable=False, index=True)
+    class_name = Column(String, nullable=False, index=True)
+    availability = Column(Integer, nullable=False, default=0)
+    timestamp = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+    parser_confidence = Column(String, nullable=False, default="HIGH")  # HIGH, MEDIUM, LOW, UNCERTAIN
+    raw_source_label = Column(String, nullable=True)
+    status = Column(String, nullable=False, default="AVAILABLE")  # AVAILABLE, SOLD_OUT, UNCERTAIN, PARSE_ERROR
+
+    watch = relationship("WatchJob", back_populates="snapshots")
+
+
+class AlertEvent(Base):
+    __tablename__ = "alert_events"
+    id = Column(Integer, primary_key=True, index=True)
+    watch_id = Column(String, ForeignKey("watch_jobs.id"), nullable=False, index=True)
+    train = Column(String, nullable=False, index=True)
+    class_name = Column(String, nullable=False, index=True)
+    previous_availability = Column(Integer, nullable=False, default=0)
+    current_availability = Column(Integer, nullable=False, default=0)
+    event_type = Column(String, nullable=False, index=True)  # SEAT_AVAILABLE, SEAT_SOLD_OUT, SESSION_EXPIRED, LOGIN_REQUIRED, CAPTCHA_REQUIRED, PARSE_ERROR, NETWORK_ERROR, WORKER_STARTED, WORKER_STOPPED
+    detected_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+    acknowledged_at = Column(DateTime, nullable=True)
+    closed_at = Column(DateTime, nullable=True)
+    notified_telegram = Column(Integer, nullable=False, default=0)
+    details = Column(String, nullable=True)
+
+    watch = relationship("WatchJob", back_populates="alerts")

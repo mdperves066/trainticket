@@ -1,114 +1,225 @@
-# Bangladesh Railway E-Ticketing System 🚆
+# Bangladesh Railway E-Ticket Availability Monitoring Assistant 🚆
 
-A complete, production-ready, full-stack **Railway Reservation & Online Ticket Booking Application** built with **Next.js 14**, **FastAPI**, **SQLAlchemy**, and **Tailwind CSS**.
+A personal-use, real-time ticket availability monitoring assistant for Bangladesh Railway, powered by **FastAPI**, **Next.js 14**, and **Playwright** browser automation.
 
----
+The official source of truth is **[https://eticket.railway.gov.bd/](https://eticket.railway.gov.bd/)**.
 
-## ✨ Features
-
-### 🎫 User & Booking Features
-- **Smart Train Search**: Autocomplete stations across Bangladesh (Dhaka, Chittagong, Cox's Bazar, Sylhet, Rajshahi, etc.) and date selection.
-- **Route & Pathfinding**: Multi-segment routing algorithm that computes exact distances, arrival/departure times, and trip durations.
-- **Real-Time Seat Availability**: Real-time seat inventory for Shovon Chair, Snigdha (AC Chair), AC Berth, and Cabin classes.
-- **Instant Digital PDF Tickets**: Generates official Bangladesh Railway branded PDF tickets client-side with barcode styling, passenger details, seat numbers, and journey schedule.
-- **Complete Booking History**: User dashboard tracking active and past bookings with real-time status badges (`CONFIRMED` or `CANCELLED`).
-- **Reservation Cancellation**: Self-service ticket cancellation that instantly restores seat availability to the inventory.
-
-### 🔒 Security & Performance
-- **Resilient Caching**: Redis caching for fast station/route lookup, with an automated in-memory fallback if Redis is offline.
-- **JWT Authentication**: Secure token-based authentication with bcrypt password hashing.
-- **Zero-Setup Database**: Automatic SQLite fallback (`railway.db`) out-of-the-box for instant local testing, with full PostgreSQL support for production.
-- **Automated Database Seeder**: Comes with pre-loaded realistic Bangladesh Railway stations, express trains (Subarna, Sonar Bangla, Cox's Bazar Express, Parabat, Silk City), schedules, seat categories, and a demo user.
+This tool is designed to solve a real-world problem: instead of manually refreshing the official railway website for hours hoping for a released seat, this assistant continuously monitors seat availability in the background and triggers an immediate audio siren, desktop notification, and optional Telegram alert the moment seats become available ($0 \rightarrow >0$).
 
 ---
 
-## 🏗 Project Architecture
+## 🎯 What This Project Does
 
 ```
-├── backend/                  # FastAPI Backend API
-│   ├── database.py           # Database engine (SQLite/PostgreSQL hybrid)
-│   ├── main.py               # FastAPI application & router registration
-│   ├── models.py             # SQLAlchemy models (User, Ticket, Train, Seat, Route, etc.)
-│   ├── oauth2.py             # JWT authentication & authorization
-│   ├── redis_cache.py        # Resilient caching layer (Redis + Memory fallback)
-│   ├── router/               # API endpoints (auth, booking, path, place, route, train, user)
-│   ├── schemas.py            # Pydantic v2 schemas
-│   ├── seed.py               # Bangladesh Railway database seeder
-│   └── test_api.py           # End-to-end API test suite
-│
-├── frontend/                 # Next.js 14 Web Application
-│   ├── app/                  # App Router pages (book_tickets, profile, signin, signup, etc.)
-│   ├── components/           # UI Components (Profile with Booking History, TrainSearch, etc.)
-│   └── utility/              # Helpers (GenerateTicketPDF, FormatDate, etc.)
-│
-├── run_backend.bat           # One-click Windows runner for Backend
-├── run_frontend.bat          # One-click Windows runner for Frontend
-└── seed_database.bat         # One-click Database Seeder
+USER SPECIFIES CRITERIA → MONITORS OFFICIAL SITE → DETECTS AVAILABILITY (0 → >0) → ALARMS USER → OPENS OFFICIAL BOOKING FLOW
+```
+
+1. **You Specify Journey Criteria**:
+   - Departure & Arrival stations (e.g. `DHAKA` to `SYLHET` or `CHITTAGONG`)
+   - Journey date (within the official advance booking window)
+   - Passenger count (1–4)
+   - Train preference: specific trains (e.g. *Parabat Express*, *Subarna Express*) or **ALL MATCHING TRAINS**
+   - Class preference: specific classes (e.g. *Snigdha*, *AC_S*, *Shovon Chair*) or **ALL MATCHING CLASSES**
+2. **Persistent Browser Session**:
+   - Uses Playwright with a persistent local Chromium user profile (`backend/.browser-profile`).
+   - You log in manually to your official railway account **once**. Your session cookies and credentials remain stored locally on your own machine.
+3. **Continuous Background Monitoring**:
+   - Respectful polling interval (default 15s with random jitter between 10s and 30s).
+   - Progressive exponential backoff if temporary errors occur (15s $\rightarrow$ 30s $\rightarrow$ 60s $\rightarrow$ 120s).
+   - Stops polling immediately when you click **Stop Monitoring**.
+4. **Resilient Change Detection Engine**:
+   - Strictly tracks state transitions:
+     - `0 -> 0`: Remains unavailable. No alert.
+     - `0 -> >0`: **SEAT_AVAILABLE!** Triggers high-priority alerts.
+     - `>0 -> >0`: Opportunity continues. No duplicate alerts.
+     - `>0 -> 0`: Opportunity marked **CLOSED** (`SEAT_SOLD_OUT`).
+     - `0 -> >0` (again): New alert opportunity triggered.
+   - Suppresses alerts on uncertain or unparseable DOM states (`PARSE_ERROR`). Never triggers false alarms.
+5. **Multi-Channel Alert System**:
+   - **Audio Siren**: Web Audio API dual-frequency siren (880Hz / 660Hz) that sounds continuously until acknowledged or stopped.
+   - **Browser Notifications**: Native HTML5 desktop notifications.
+   - **Flashing Browser Tab**: Flashing title alerts (`🚨 2 SEATS! Parabat Express (Snigdha)`).
+   - **Optional Telegram Bot**: Instant Markdown notification with a direct booking link.
+6. **One-Click Official Booking**:
+   - Provides an **[OPEN OFFICIAL BOOKING PAGE]** button.
+   - The user completes the final ticket reservation, OTP, CAPTCHA, and payment securely on the official portal.
+
+---
+
+## 🛡️ Security, Privacy & Ethical Boundaries
+
+- ❌ **No Automated Ticket Purchasing**: This is a personal monitoring assistant. It does **not** auto-buy tickets or reverse-engineer payment APIs.
+- ❌ **No CAPTCHA / Bot Bypass**: Never bypasses security challenges, OTPs, or Cloudflare verification. If a challenge is detected, monitoring pauses safely, marks status as `MANUAL_ACTION_REQUIRED`, and brings up the visible browser for you to solve it manually.
+- ❌ **No Credential Theft**: Never stores your Bangladesh Railway password, NID, phone OTP, bKash PIN, or card details.
+- ❌ **No Site Hammering**: Respects official portal servers with configurable intervals (10–30s jitter) and automatic backoff.
+
+---
+
+## 🏗️ Architecture
+
+```mermaid
+flowchart TD
+    subgraph UI ["Frontend (Next.js 14 + TailwindCSS + SSE)"]
+        Dashboard["Monitoring Dashboard"]
+        WatchForm["Watch Setup & Search Once Form"]
+        LiveTable["Live Availability Table"]
+        AlertCenter["Alert Center & Audio Siren Controller"]
+        WatchList["Watch Jobs & Export (CSV/JSON)"]
+        EventTimeline["Chronological Transition Audit Trail"]
+        Diagnostics["System Health & Mode Switcher"]
+    end
+
+    subgraph Backend ["FastAPI Backend (Port 8000)"]
+        WatchRouter["/api/watches CRUD & Control"]
+        AlertRouter["/api/alerts & Siren Actions"]
+        SessionRouter["/api/session & Browser Launcher"]
+        DiagRouter["/health & /api/diagnostics"]
+        SSEStream["/api/events/stream (Server-Sent Events)"]
+        ChangeDetector["State Transition Engine"]
+        WatchScheduler["Asyncio Watch Task Runner & Concurrency"]
+        TelegramService["Telegram Bot Notifier (Optional)"]
+    end
+
+    subgraph Adapters ["Dual Adapter Architecture"]
+        OfficialAdapter["OfficialRailwayAdapter (Playwright Automation)"]
+        MockAdapter["MockRailwayAdapter (Dev & Offline Test Cycles)"]
+    end
+
+    subgraph External ["Official Website"]
+        OfficialPortal["https://eticket.railway.gov.bd/"]
+        BrowserProfile["Persistent Chromium Profile (backend/.browser-profile)"]
+    end
+
+    Dashboard <-->|REST + SSE| Backend
+    WatchScheduler --> ChangeDetector
+    ChangeDetector -->|0 -> >0 Transition| AlertRouter
+    ChangeDetector -->|0 -> >0 Transition| TelegramService
+    WatchScheduler --> Adapters
+    OfficialAdapter --> BrowserProfile
+    BrowserProfile --> OfficialPortal
 ```
 
 ---
 
-## ⚡ Quick Start (Ready to Run)
+## 🚀 Quick Start on Windows
 
-### Method 1: One-Click Launch (Windows)
+### Method 1: The One-Click Runner (Recommended)
 
-1. Double-click `run_backend.bat` to seed the database and start the FastAPI server on `http://localhost:8000`.
-2. Double-click `run_frontend.bat` to start the Next.js frontend on `http://localhost:3000`.
-3. Open `http://localhost:3000` in your browser!
+Simply double-click:
+```bat
+run_all.bat
+```
+This script automatically:
+1. Verifies Python 3.10+ and Node.js 18+.
+2. Installs missing backend dependencies (`requirements.txt`).
+3. Installs missing frontend dependencies (`npm install`).
+4. Launches the FastAPI backend on `http://localhost:8000`.
+5. Launches the Next.js frontend on `http://localhost:3000`.
+6. Opens your default web browser to the dashboard.
 
 ---
 
-### Method 2: Manual Setup
+### Method 2: Individual Launch Scripts
 
-#### 1. Backend Setup
-```bash
-cd backend
-python -m venv venv
+- **`run_backend.bat`**: Starts the FastAPI backend with Playwright worker capability on `http://localhost:8000`.
+- **`run_frontend.bat`**: Starts the Next.js dev server on `http://localhost:3000`.
+- **`run_worker.bat`**: Opens a visible Chromium window connected to your persistent profile to log in to the official railway portal manually.
 
-# Windows PowerShell:
-.\venv\Scripts\Activate.ps1
-# Windows CMD:
-venv\Scripts\activate.bat
-# Linux/macOS:
-source venv/bin/activate
+---
 
-pip install -r requirements.txt
+## 🔑 How to Log In to the Official Railway Portal
 
-# Seed initial Bangladesh Railway data (Stations, Trains, Routes & Demo User):
-python seed.py
+1. Run `run_worker.bat` (or click **Browser Login** in the dashboard header).
+2. A visible Chromium browser window opens to `https://eticket.railway.gov.bd/login`.
+3. Enter your official railway mobile number and password, solve any CAPTCHA, and complete the OTP verification.
+4. Once you see your profile name on the official site, you can close the browser.
+5. Your session cookies are stored in `backend/.browser-profile` and will automatically be reused by background monitoring tasks.
 
-# Start FastAPI server:
-uvicorn main:app --reload --port 8000
+---
+
+## 🔍 How to Create a Watch Job
+
+1. Open `http://localhost:3000`.
+2. Under **Availability Search & Watch Setup**:
+   - Choose **From Station** (e.g. `DHAKA`).
+   - Choose **To Station** (e.g. `SYLHET`).
+   - Select **Journey Date**.
+   - Select **Passenger Count** (1–4).
+   - Select preferred trains (or keep **ALL MATCHING TRAINS**).
+   - Select preferred seat classes (or keep **ALL CLASSES**).
+3. Click **START MONITORING**.
+4. The background task will poll at respectful intervals, and live availability appears in the **Live Availability Table**.
+5. You can also click **Search Once** to perform a single check without continuous polling.
+
+---
+
+## 🚨 How Alerts Work
+
+When seat availability transitions from 0 to $>0$:
+1. **Audio Siren**: Web Audio API generates an alternating dual-tone emergency siren.
+2. **Desktop Notification**: Native browser notification pops up with the train, class, and seat count.
+3. **Flashing Tab Title**: Browser tab title alternates to grab your attention.
+4. **Alert Center**: Displays an active alert card with detection details.
+5. **Telegram (Optional)**: If configured, an instant alert is sent to your Telegram chat.
+6. **Action**: Click **[OPEN OFFICIAL BOOKING]** to navigate straight to the official search results and buy your ticket before someone else grabs it.
+7. Click **STOP SIREN** or **Acknowledge** to silence the sound.
+
+---
+
+## 📱 Telegram Setup (Optional)
+
+To receive alerts on your phone via Telegram:
+1. Open Telegram and create a bot using `@BotFather`. Copy the `TELEGRAM_BOT_TOKEN`.
+2. Start a chat with your bot, then get your `TELEGRAM_CHAT_ID` using `@userinfobot`.
+3. Add them to `backend/.env`:
+   ```ini
+   TELEGRAM_BOT_TOKEN=123456789:ABCdefGhIJKlmNoPQRstuVWXyz
+   TELEGRAM_CHAT_ID=987654321
+   ```
+4. Restart the backend. Telegram notifications will now dispatch automatically.
+
+---
+
+## ⚙️ Configuration (.env)
+
+`backend/.env.example`:
+```ini
+# Application Mode: MOCK (offline/testing) or LIVE (Official Playwright automation)
+APP_MODE=MOCK
+APP_ENV=development
+
+# Polling Interval (in seconds) with jitter
+MONITOR_INTERVAL_SECONDS=15
+MONITOR_MIN_INTERVAL_SECONDS=10
+MONITOR_MAX_INTERVAL_SECONDS=30
+
+# Optional Telegram Notifications
+TELEGRAM_BOT_TOKEN=
+TELEGRAM_CHAT_ID=
+
+# Database (defaults to local SQLite)
+DATABASE_URL=sqlite:///./railway.db
+
+# CORS Origins
+CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
 ```
-- Interactive API Docs: [http://localhost:8000/docs](http://localhost:8000/docs)
 
-#### 2. Frontend Setup
-```bash
+---
+
+## 🧪 Testing & Verification
+
+Run the automated test suite verifying state transitions, parser error handling, and API endpoints:
+```powershell
+backend\venv\Scripts\python.exe -m pytest backend/tests/ -v
+```
+
+Build and validate the Next.js frontend:
+```cmd
 cd frontend
-npm install
-npm run dev
-```
-- Web Application: [http://localhost:3000](http://localhost:3000)
-
----
-
-## 👤 Default Demo Credentials
-
-You can sign in immediately using the pre-seeded passenger account:
-- **Email:** `demo@railway.gov.bd`
-- **Password:** `password123`
-
----
-
-## 🧪 Testing Backend Endpoints
-
-Run the automated test suite verifying auth, booking, PDF data generation, and ticket cancellation:
-```bash
-cd backend
-python test_api.py
+cmd /c npm run build
 ```
 
 ---
 
 ## 📄 License
-MIT License
+MIT License.
